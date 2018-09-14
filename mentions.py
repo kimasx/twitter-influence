@@ -31,14 +31,16 @@ top_100 = [
     # 'ConanOBrien',
     # 'kanyewest'
 ]
-
+from pgsetup import conn, cur
+from apisetup import api
+import datetime
 query = "INSERT INTO mentions VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
 
 startTime = datetime.datetime(2018,9,3,0,0,0)
 #endTime = datetime.datetime(2018,9,3,0,0,0)
 
 for usr in top_100:
-    mentioned_user = api.get_user(screen_name=usr)
+    mentioned_user = api.get_user(screen_name='NiallOfficial')
     q = '@' + mentioned_user.screen_name
     print(mentioned_user.screen_name)
     for tweet in Cursor(api.search, q=(q+'-filter:retweets'), since=startTime, tweet_mode='extended').items(500):

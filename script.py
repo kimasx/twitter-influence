@@ -177,4 +177,3 @@ for usr_handle in top_100:
                 # except:
                 #     conn.rollback()
                 #     print('Rollback: Already exists...')
-    #

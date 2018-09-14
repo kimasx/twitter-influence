@@ -3,7 +3,7 @@
 PostgreSQL Setup
 """
 import psycopg2 as pg2
-conn = pg2.connect(database='tweets', password='', user='postgres')
+conn = pg2.connect(database='tweets', password='DaDgen1975!!', user='postgres')
 cur = conn.cursor()
 
 """ Create table for all tweets from user timeline """
