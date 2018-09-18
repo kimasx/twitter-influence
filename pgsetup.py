@@ -2,8 +2,15 @@
 """
 PostgreSQL Setup
 """
+import yaml
 import psycopg2 as pg2
-conn = pg2.connect(database='tweets', password='DaDgen1975!!', user='postgres')
+
+conf = yaml.load(open('./twitter-influence/credentials.yaml'))
+
+password = conf['user']['password']
+user_name = conf['user']['name']
+
+conn = pg2.connect(database='tweets', password=password, user=user_name)
 cur = conn.cursor()
 
 """ Create table for all tweets from user timeline """

@@ -3,10 +3,17 @@
 Twitter API Setup
 """
 
+import yaml
 import tweepy
 
-auth = tweepy.OAuthHandler('x9CyUqYlHRN30PkmLD8OqmXES','xmpm0KEbm5J9Z3Ab9BExN4x5RTV2syNYfoYCNHjisTZ5PQY4pV')
-auth.set_access_token('1037370860942909440-C2V5XuoEnWIY4thusoMZexGr5kZ6lH','fZf6kL5do5uILJenpzlmWGGi8iytY8WFYwzxKfGdXIaj4')
+conf = yaml.load(open('./twitter-influence/credentials.yaml'))
+cons_key = conf['consumer']['key']
+cons_secret = conf['consumer']['secret']
+acc_key = conf['access_token']['key']
+acc_secret = conf['access_token']['secret']
+
+auth = tweepy.OAuthHandler(cons_key, cons_secret)
+auth.set_access_token(acc_key, acc_secret)
 api = tweepy.API(auth)
 
 if (not api):

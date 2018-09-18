@@ -327,7 +327,7 @@ metrics = {
 
 from pgsetup import conn, cur
 import pandas as pd
-from sklearn import preprocessing
+import matplotlib.pyplot as plt
 from scipy import stats
 
 def influence_score(followers, retweets, mentions):
@@ -339,23 +339,31 @@ def influence_score(followers, retweets, mentions):
 
 
 try:
-    cur.execute(
-        """ SELECT mentioned_user_handle, COUNT(*) 
+    cur.execute(""" 
+        SELECT mentioned_user_handle, COUNT(*) 
         FROM mentions
         GROUP BY mentioned_user_handle
-        ORDER BY COUNT(*) DESC; """
-    )
+        ORDER BY COUNT(*) DESC;
+    """)
     mentions = cur.fetchall()
 
     cur.execute("""
         SELECT handle, SUM(retweets_count) AS sum
         FROM tweets 
         GROUP BY handle
-        ORDER BY sum DESC; """
-    )
+        ORDER BY sum DESC;
+    """)
     retweets_count = cur.fetchall()
 
-    cur.execute("SELECT handle, followers_count, tweets_count  FROM users")
+    cur.execute("""
+        SELECT handle, COUNT(*) AS tweets_count
+        FROM tweets
+        GROUP BY handle
+        ORDER BY tweets_count DESC;
+    """)
+    tweets_count = cur.fetchall()
+
+    cur.execute("SELECT handle, followers_count  FROM users")
     user_info = cur.fetchall()
 except:
     conn.rollback()
@@ -370,10 +378,10 @@ for topUsr in retweets_count:
         metrics[topUsr[0]].update({ 'retweets_count': int(str(topUsr[1])) })
 for topUsr in user_info:
     if (topUsr[0] in metrics):
-        metrics[topUsr[0]].update({
-            'followers': topUsr[1],
-            'tweets_count': topUsr[2]
-        })
+        metrics[topUsr[0]].update({ 'followers': topUsr[1] })
+for topUsr in tweets_count:
+    if (topUsr[0] in metrics):
+        metrics[topUsr[0]].update({ 'tweets_count': topUsr[1] })
 
 for celeb in metrics:
     print(celeb)
@@ -381,5 +389,15 @@ for celeb in metrics:
     metrics[celeb].update({ 'inf_score': score })
 
 df = pd.DataFrame.from_dict(metrics, orient='index')
-df['normalized_scores'] = (df.inf_score - df.inf_score.mean()) / df.inf_score.std()
+df['normalized_scores'] = (df.inf_score - df.inf_score.min()) / (df.inf_score.max() - df.inf_score.min())
 df = df.sort_values('normalized_scores', ascending=False)
+
+
+fig, ax = plt.subplots()
+ax.barh(df.index, df.normalized_scores)
+ax.set_yticklabels(df.index)
+ax.invert_yaxis()
+plt.xlabel('Top Users on Twitter')
+plt.ylabel('Influence Score (0-1)')
+plt.title('Influence Score for Top Most Followed Twitter Accounts')
+plt.show()

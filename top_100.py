@@ -58,7 +58,7 @@ top_followers = [
     # 'sachin_rt',
     # 'PMOIndia',
     # 'KendallJenner',
-    # 'imVkholi',
+    # 'imVkohli',
     # 'pitbull',
     # 'danieltosh',
     # 'khloekardashian',
