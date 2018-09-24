@@ -22,9 +22,9 @@ mentions <- dbGetQuery(con, 'SELECT mentioned_user_handle, COUNT(*)
                        ORDER BY COUNT(*) DESC;')
 
 total_retweets <- dbGetQuery(con, 'SELECT handle, SUM(retweets_count) AS sum
-        FROM tweets 
-        GROUP BY handle
-        ORDER BY sum DESC;')
+                             FROM tweets 
+                             GROUP BY handle
+                             ORDER BY sum DESC;')
 
 tweets_count <- dbGetQuery(con, 'SELECT handle, COUNT(*) AS tweets_count
                            FROM tweets
@@ -63,19 +63,15 @@ g + labs(y='Influence Score (0-1)', x='Top 33 Twitter Users Ranked by Influence 
 
 
 ## 
-# Get number of users gained and find correlation with user influence
+# Get total # of followers and find correlation with user influence (without politicians)
 #
 
-usersGainedData <- read.xlsx('../OneDrive - Harvard Business School/twitter_user_changes.xlsx',sheetIndex = 1, header = TRUE)
-gained <- ggplot(usersGainedData, aes(reorder(handle,metrics$norm_score), percent_change*100)) + geom_bar(stat='identity')+coord_flip()
-gained + labs(x='Top 33 Twitter Users Ranked by Influence Score', y='Percent Change in Num. of Followers (%)')
+no_pols <- subset(metrics, handle != 'realDonaldTrump' & handle != 'narendramodi' & handle != 'BarackObama')
 
+#usersGainedData <- read.xlsx('../OneDrive - Harvard Business School/twitter_user_changes.xlsx',sheetIndex = 1, header = TRUE)
 
-correlationDf <- data.frame(metrics$handle, metrics$norm_score, usersGainedData$percent_change)
-newColNames <- c('user','inf_score', 'percent_change_followers')
-colnames(correlationDf) <- newColNames
+corrPlot <- ggplot(no_pols, aes(followers_count, norm_score)) + geom_point(alpha=0.7, size=3)
+corrPlot + labs(y='Top 33 Twitter Users Ranked by Influence Score', x='Total Num. of Followers')
 
-cor.test(x=correlationDf$inf_score, y=correlationDf$percent_change_followers, method = 'spearman')
+cor.test(y=no_pols$norm_score, x=no_pols$followers_count, method = 'spearman')
 
-linCorr <- ggplot(correlationDf, aes(x=inf_score, y=percent_change_followers)) + geom_point(color='#2980B9', size = 2)
-linCorr + scale_x_continuous(name='Influence Score') + scale_y_continuous(name='Percent Change in Number of Followers') 

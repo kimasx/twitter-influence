@@ -1,4 +1,4 @@
-/credentials.yaml
+*.yaml
 /.idea
 /__pycache__
 *.RData
