@@ -1,4 +1,5 @@
 *.yaml
+*.xlsx
 /.idea
 /__pycache__
 *.RData

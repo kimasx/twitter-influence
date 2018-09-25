@@ -2,6 +2,8 @@
 """
 PostgreSQL Setup
 """
+
+
 import yaml
 import psycopg2 as pg2
 
@@ -49,7 +51,7 @@ cur = conn.cursor()
 #            date_queried date
 #    )
 #""")
-#
+
 
 
 """ Create table for mentions of a user """
@@ -64,6 +66,60 @@ cur = conn.cursor()
 #         mentioned_user_id bigint,
 #         mentioned_user_handle text
 #     )
-# """
-# )
-# conn.commit()
+# """)
+
+""" Create users table with buckets """
+# cur.execute("""
+#     CREATE TABLE buckets(
+#         id text PRIMARY KEY,
+#         name text,
+#         handle text,
+#         location text,
+#         verified boolean,
+#         description text,
+#         followers_count bigint,
+#         following_count bigint,
+#         tweets_count bigint,
+#         likes_count bigint,
+#         listed_count bigint,
+#         bucket text,
+#         date_queried date
+#     )
+# """)
+
+""" Create table for tweets by users in bucket """
+# cur.execute("""
+#     CREATE TABLE buckets_tweets(
+#         id text PRIMARY KEY,
+#         date date,
+#         text text,
+#         is_quote boolean,
+#         is_reply boolean,
+#         quoted_twt_id text,
+#         in_reply_to_status_id text,
+#         retweets_count bigint,
+#         favorites_count bigint,
+#         handle text,
+#         user_id text,
+#         collected_on date
+#     )
+# """)
+
+""" Create table for mentions of a user in bucket """
+cur.execute("""
+    CREATE TABLE buckets_mentions(
+        id text PRIMARY KEY,
+        date date,
+        text text,
+        in_reply_to_status_id text,
+        user_id text,
+        handle text,
+        mentioned_user_id text,
+        mentioned_user_handle text
+    )
+""")
+
+conn.commit()
+
+cur.close()
+conn.close()

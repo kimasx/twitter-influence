@@ -3,8 +3,8 @@
 Twitter API Setup
 """
 
-import yaml
-import tweepy
+import yaml, tweepy
+
 
 conf = yaml.load(open('./twitter-influence/credentials.yaml'))
 cons_key = conf['consumer']['key']

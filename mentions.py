@@ -4,12 +4,8 @@ Created on Mon Sep 10 12:31:40 2018
 
 @author: sunkim
 """
-from apisetup import api
-from pgsetup import conn, cur
-from tweepy.cursor import Cursor
-import datetime
 
-top_100 = [
+# top_100 = [
     # 'MileyCyrus',
     # 'NialOfficial',
     # 'Drake',
@@ -30,28 +26,42 @@ top_100 = [
     # 'EmmaWatson',
     # 'ConanOBrien',
     # 'kanyewest'
-]
-from pgsetup import conn, cur
+# ]
+import datetime, yaml
+import pandas as pd
+from tweepy.cursor import Cursor
 from apisetup import api
-import datetime
-query = "INSERT INTO mentions VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+import psycopg2 as pg2
 
-startTime = datetime.datetime(2018,9,3,0,0,0)
+conf = yaml.load(open('./twitter-influence/credentials.yaml'))
+
+password = conf['user']['password']
+user_name = conf['user']['name']
+
+conn = pg2.connect(database='tweets', password=password, user=user_name)
+cur = conn.cursor()
+
+dframe = pd.read_excel("./twitter-influence/buckets_list.xlsx")
+bucketsdf = dframe.loc[dframe['bucket'] == 'athlete']
+
+query = "INSERT INTO buckets_mentions VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+
+startTime = datetime.datetime(2018,9,15,0,0,0)
 #endTime = datetime.datetime(2018,9,3,0,0,0)
 
-for usr in top_100:
-    mentioned_user = api.get_user(screen_name='NiallOfficial')
+for uni in bucketsdf['handle']:
+    mentioned_user = api.get_user(screen_name=uni)
     q = '@' + mentioned_user.screen_name
     print(mentioned_user.screen_name)
     for tweet in Cursor(api.search, q=(q+'-filter:retweets'), since=startTime, tweet_mode='extended').items(500):
         data = {
-            'id': tweet.id,
+            'id': tweet.id_str,
             'date': tweet.created_at,
             'text': tweet.full_text,
-            'in_reply_to_status_id': tweet.in_reply_to_status_id,
-            'user_id': tweet.user.id,
+            'in_reply_to_status_id': tweet.in_reply_to_status_id_str,
+            'user_id': tweet.user.id_str,
             'handle': tweet.user.screen_name,
-            'mentioned_user_id': mentioned_user.id,
+            'mentioned_user_id': mentioned_user.id_str,
             'mentioned_user_handle': mentioned_user.screen_name
         }
         print(data)
@@ -67,6 +77,8 @@ for usr in top_100:
                 data['mentioned_user_handle']
             ))
             conn.commit()
-        except:
+        except pg2.IntegrityError:
             conn.rollback()
             print('Rollback: Already exists...')
+cur.close()
+conn.close()
