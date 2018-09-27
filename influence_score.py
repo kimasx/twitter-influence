@@ -328,7 +328,6 @@ metrics = {
 from pgsetup import conn, cur
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy import stats
 
 def influence_score(followers, retweets, mentions):
     i_r = (retweets + mentions) / followers
