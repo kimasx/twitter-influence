@@ -15,6 +15,10 @@ user_name = conf['user']['name']
 conn = pg2.connect(database='tweets', password=password, user=user_name)
 cur = conn.cursor()
 
+# cur.execute("""
+#     ALTER TABLE buckets_tweets ADD COLUMN replies_num INT;
+# """)
+
 """ Create table for all tweets from user timeline """
 # cur.execute("""
 #     CREATE TABLE tweets(
@@ -106,18 +110,18 @@ cur = conn.cursor()
 # """)
 
 """ Create table for mentions of a user in bucket """
-cur.execute("""
-    CREATE TABLE buckets_mentions(
-        id text PRIMARY KEY,
-        date date,
-        text text,
-        in_reply_to_status_id text,
-        user_id text,
-        handle text,
-        mentioned_user_id text,
-        mentioned_user_handle text
-    )
-""")
+# cur.execute("""
+#     CREATE TABLE buckets_mentions(
+#         id text PRIMARY KEY,
+#         date date,
+#         text text,
+#         in_reply_to_status_id text,
+#         user_id text,
+#         handle text,
+#         mentioned_user_id text,
+#         mentioned_user_handle text
+#     )
+# """)
 
 conn.commit()
 

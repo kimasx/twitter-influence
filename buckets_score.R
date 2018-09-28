@@ -70,7 +70,7 @@ tweets_info$rmr <- mapply(calculate_rmr, tweets_info$retweets, tweets_info$repli
 tweets_info$rmr <- round(tweets_info$rmr, digits = 4)
 tweets_info <- tweets_info[complete.cases(tweets_info),]
 
-ir_scores <- buckets_metrics %>% select(handle,bucket,ir)
+ir_scores <- buckets_metrics %>% select(handle,bucket,followers_count,ir)
 rmr_scores <- tweets_info %>% select(handle, rmr)
 scores <- merge(x=ir_scores, y=rmr_scores, by='handle')
 
@@ -95,4 +95,3 @@ write.xlsx(unis,'C:/Users/sunkim/Development/twitter-influence/bucket_scores.xls
 write.xlsx(artists,'C:/Users/sunkim/Development/twitter-influence/bucket_scores.xlsx',sheetName='artist', append=T, row.name=F)
 write.xlsx(athletes,'C:/Users/sunkim/Development/twitter-influence/bucket_scores.xlsx',sheetName='athlete', append=T, row.name=F)
 write.xlsx(senators,'C:/Users/sunkim/Development/twitter-influence/bucket_scores.xlsx',sheetName='senator', append=T, row.name=F)
-
