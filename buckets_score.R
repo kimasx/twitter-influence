@@ -37,10 +37,14 @@ con <- dbConnect(RPostgres::Postgres(),
                 password=rstudioapi::askForPassword("Enter database password"))
 
 
-mentions <- dbGetQuery(con, "SELECT buckets.handle, COUNT(buckets_mentions.id) AS mentions,bucket FROM buckets_mentions
-                             RIGHT JOIN buckets ON buckets_mentions.mentioned_user_handle=buckets.handle
+mentions <- dbGetQuery(con, 'SELECT 
+        	                     buckets.handle,
+                               COALESCE(SUM(buckets_tweets.replies_num),0) AS mentions,
+                               bucket
+                             FROM buckets_tweets
+                             RIGHT JOIN buckets ON buckets_tweets.handle=buckets.handle
                              GROUP BY buckets.handle, buckets.bucket
-                             ORDER BY buckets.bucket;")
+                             ORDER BY buckets.bucket;')
 
 
 total_retweets <- dbGetQuery(con, 'SELECT buckets.handle,COALESCE(SUM(retweets_count),0) AS retweets FROM buckets_tweets
@@ -52,11 +56,11 @@ total_retweets <- dbGetQuery(con, 'SELECT buckets.handle,COALESCE(SUM(retweets_c
 user_info <- dbGetQuery(con, 'SELECT handle,followers_count FROM buckets;')
 
 tweets_info <- dbGetQuery(con, 'SELECT 
-      	                        buckets.handle, 
-                                COALESCE(COUNT(buckets_tweets.id),0) AS tweets,
-                                SUM(CASE WHEN retweets_count>0 THEN 1 ELSE 0 END) AS retweets,
-                                SUM(CASE WHEN has_replies THEN 1 ELSE 0 END) AS replies,
-                                buckets.bucket
+        	                        buckets.handle, 
+                                  COALESCE(COUNT(buckets_tweets.id),0) AS tweets,
+                                  SUM(CASE WHEN retweets_count>0 THEN 1 ELSE 0 END) AS retweets,
+                                  SUM(CASE WHEN has_replies THEN 1 ELSE 0 END) AS replies,
+                                  buckets.bucket
                                 FROM buckets_tweets
                                 RIGHT JOIN buckets ON buckets_tweets.handle=buckets.handle
                                 GROUP BY buckets.handle,buckets.bucket;')
@@ -90,8 +94,8 @@ athletes$norm_score <- (athletes$inf_score - min(athletes$inf_score) ) / (max(at
 senators$norm_score <- (senators$inf_score - min(senators$inf_score) ) / (max(senators$inf_score) - min(senators$inf_score))
 
 
-write.xlsx(scores,'C:/Users/sunkim/Development/twitter-influence/bucket_scores.xlsx',sheetName='all_buckets', row.name=F)
-write.xlsx(unis,'C:/Users/sunkim/Development/twitter-influence/bucket_scores.xlsx',sheetName='university', append=T, row.name=F)
-write.xlsx(artists,'C:/Users/sunkim/Development/twitter-influence/bucket_scores.xlsx',sheetName='artist', append=T, row.name=F)
-write.xlsx(athletes,'C:/Users/sunkim/Development/twitter-influence/bucket_scores.xlsx',sheetName='athlete', append=T, row.name=F)
-write.xlsx(senators,'C:/Users/sunkim/Development/twitter-influence/bucket_scores.xlsx',sheetName='senator', append=T, row.name=F)
+write.xlsx(scores,'C:/Users/sunkim/Development/twitter-influence/bucket_scores2.xlsx',sheetName='all_buckets', row.name=F)
+write.xlsx(unis,'C:/Users/sunkim/Development/twitter-influence/bucket_scores2.xlsx',sheetName='university', append=T, row.name=F)
+write.xlsx(artists,'C:/Users/sunkim/Development/twitter-influence/bucket_scores2.xlsx',sheetName='artist', append=T, row.name=F)
+write.xlsx(athletes,'C:/Users/sunkim/Development/twitter-influence/bucket_scores2.xlsx',sheetName='athlete', append=T, row.name=F)
+write.xlsx(senators,'C:/Users/sunkim/Development/twitter-influence/bucket_scores2.xlsx',sheetName='senator', append=T, row.name=F)
