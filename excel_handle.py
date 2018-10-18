@@ -33,22 +33,22 @@ for sntr in senators['handle']:
             'date_queried': datetime.datetime.today().strftime('%Y-%m-%d')
         }
     print(data)
-    # cur.execute(query, (data['id'],
-    #                     data['name'],
-    #                     data['handle'],
-    #                     data['location'],
-    #                     data['verified'],
-    #                     data['description'],
-    #                     data['followers_count'],
-    #                     data['following_count'],
-    #                     data['tweets_count'],
-    #                     data['likes_count'],
-    #                     data['listed_count'],
-    #                     data['bucket'],
-    #                     data['date_queried']
-    #                     )
-    # )
-    # conn.commit()
+    cur.execute(query, (data['id'],
+                        data['name'],
+                        data['handle'],
+                        data['location'],
+                        data['verified'],
+                        data['description'],
+                        data['followers_count'],
+                        data['following_count'],
+                        data['tweets_count'],
+                        data['likes_count'],
+                        data['listed_count'],
+                        data['bucket'],
+                        data['date_queried']
+                        )
+    )
+    conn.commit()
 
 cur.close()
 conn.close()

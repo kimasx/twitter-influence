@@ -16,10 +16,11 @@ con <- dbConnect(RPostgres::Postgres(),
                  user='postgres',
                  password=rstudioapi::askForPassword("Enter database password"))
 
-mentions <- dbGetQuery(con, 'SELECT mentioned_user_handle, COUNT(*) 
-                       FROM mentions
-                       GROUP BY mentioned_user_handle
-                       ORDER BY COUNT(*) DESC;')
+mentions <- dbGetQuery(con, 'SELECT 
+                       handle, COALESCE(SUM(replies_num),0) AS mentions
+                       FROM tweets
+                       GROUP BY handle
+                       ORDER BY mentions DESC;')
 
 total_retweets <- dbGetQuery(con, 'SELECT handle, SUM(retweets_count) AS sum
                              FROM tweets 
@@ -46,12 +47,12 @@ calculate_inf_score <- function(followers, retweets, tweets, mentions) {
   return(score)
 }
 
-metrics <- inner_join(user_info, mentions, by=c('handle' = 'mentioned_user_handle')) %>% 
+metrics <- inner_join(user_info, mentions, by=c('handle' = 'handle')) %>% 
   inner_join(x=tweets_count, y=., by=c('handle' = 'handle')) %>%
   inner_join(x=total_retweets,y=., by=c('handle' = 'handle'))
 inf_score <- rep(0, length(metrics$handle))
 metrics <- cbind(metrics,inf_score)
-metrics <- rename(metrics, mentions = count, retweets = sum) 
+metrics <- rename(metrics, retweets = sum) 
 metrics[c('tweets_count', 'followers_count', 'retweets')] <- sapply(metrics[c('tweets_count', 'followers_count', 'retweets')], as.numeric)
 
 metrics$inf_score <- mapply(calculate_inf_score, metrics$followers_count, metrics$retweets, metrics$tweets_count, metrics$mentions)
@@ -67,6 +68,7 @@ g + labs(y='Influence Score (0-1)', x='Top 33 Twitter Users Ranked by Influence 
 #
 
 no_pols <- subset(metrics, handle != 'realDonaldTrump' & handle != 'narendramodi' & handle != 'BarackObama')
+no_pols$norm_score <- (no_pols$inf_score - min(no_pols$inf_score) ) / (max(no_pols$inf_score) - min(no_pols$inf_score))
 
 #usersGainedData <- read.xlsx('../OneDrive - Harvard Business School/twitter_user_changes.xlsx',sheetIndex = 1, header = TRUE)
 
@@ -74,4 +76,6 @@ corrPlot <- ggplot(no_pols, aes(followers_count, norm_score)) + geom_point(alpha
 corrPlot + labs(y='Top 33 Twitter Users Ranked by Influence Score', x='Total Num. of Followers')
 
 cor.test(y=no_pols$norm_score, x=no_pols$followers_count, method = 'spearman')
+
+write.xlsx(no_pols,'C:/Users/sunkim/Development/twitter-influence/top_33_scores.xlsx',sheetName='sheet1', row.name=F)
 

@@ -4,6 +4,11 @@ from bs4 import BeautifulSoup
 from requests import get
 
 
+"""
+    Scrape the number of replies of a tweet
+"""
+
+
 conf = yaml.load(open('./twitter-influence/credentials.yaml'))
 password = conf['user']['password']
 user_name = conf['user']['name']
@@ -13,9 +18,7 @@ cur = conn.cursor()
 
 
 cur.execute("""
-    SELECT buckets_tweets.handle,buckets_tweets.id FROM buckets_tweets
-    JOIN buckets ON buckets_tweets.handle = buckets.handle
-    WHERE buckets.bucket='';
+    SELECT handle,id FROM tweets;
 """)
 tweets = cur.fetchall()
 
@@ -32,7 +35,7 @@ for tweet in tweets:
     else:
         reply = soup.find('span', class_='ProfileTweet-actionCount')
         print(reply['data-tweet-stat-count'], 'replies')
-        cur.execute("UPDATE buckets_tweets SET replies_num = %s WHERE id = %s;", (int(reply['data-tweet-stat-count']), tweet[1]))
+        cur.execute("UPDATE tweets SET replies_num = %s WHERE id = %s;", (int(reply['data-tweet-stat-count']), tweet[1]))
     conn.commit()
 
 
