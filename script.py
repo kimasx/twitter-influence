@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
 """
-Created on Thu Sep  6 12:22:46 2018
-
-@author: sunkim
+Collect twitter data from selected usernames and store into Postgres tables
 """
 
 import datetime, yaml
@@ -12,122 +9,12 @@ from apisetup import api
 import psycopg2 as pg2
 
 conf = yaml.load(open('./twitter-influence/credentials.yaml'))
-
 password = conf['user']['password']
 user_name = conf['user']['name']
-
 conn = pg2.connect(database='tweets', password=password, user=user_name)
 cur = conn.cursor()
 
-
-#tweets = db.tweets
-
-# top_100 = [
-        # 'katyperry',
-        # 'justinbieber',
-        # 'BarackObama',
-        # 'rihanna',
-        # 'taylorswift13',
-        # 'ladygaga',
-        # 'TheEllenShow',
-        # 'Cristiano',
-        # 'jtimberlake',
-        # 'KimKardashian',
-        # 'ArianaGrande',
-        # 'ddlovato',
-        # 'selenagomez',
-        # 'britneyspears',
-        # 'realDonaldTrump',
-        # 'shakira',
-        # 'jimmyfallon',
-        # 'BillGates',
-        # 'narendramodi'
-        # 'JLo',
-        # 'BrunoMars',
-        # 'Oprah',
-        # 'KingJames',
-        # 'neymarjr',
-        # 'MileyCyrus',
-        # 'NialOfficial',
-        # 'Drake',
-        # 'iamsrk',
-        # 'SrBachchan'
-        # 'KevinHart4real',
-        # 'BeingSalmanKhan',
-        # 'LilTunechi',
-        # 'wizkhalifa',
-        # 'Louis_Tomlinson',
-        # 'Harry_Styles',
-        # 'LiamPayne',
-        # 'Pink',
-        # 'onedirection',
-        # 'aliciakeys'
-        # 'KAKA',
-        # 'chrisbrown',
-        # 'EmmaWatson',
-        # 'ConanOBrien',
-        # 'kanyewest'
-        # 'Adele',
-        # 'akshaykumar',
-        # 'zaynmalik',
-        # 'ActuallyNPH',
-        # 'sachin_rt',
-        # 'PMOIndia',
-        # 'KendallJenner',
-        # 'imVkholi',
-        # 'pitbull',
-        # 'danieltosh',
-        # 'khloekardashian',
-        # 'KylieJenner',
-        # 'deepikapadukone',
-        # 'iHrithik',
-        # 'POTUS',
-        # 'coldplay',
-        # 'aamir_khan',
-        # 'kourtneykardash',
-        # 'andresiniesta8',
-        # 'HillaryClinton',
-        # 'MesutOzil1088',
-        # 'priyankachopra',
-        # 'elonmusk',
-        # 'Eminem',
-        # 'AvrilLavigne',
-        # 'davidguetta',
-        # 'MohamadAlarefe',
-        # 'blakeshelton',
-        # 'ricky_martin',
-        # 'MariahCarey',
-        # 'arrahman',
-        # 'NICKIMINAJ',
-        # 'ShawnMendes',
-        # 'edsheeran',
-        # 'AlejandroSanz',
-        # 'Dr_alqarnee',
-        # 'LeoDiCaprio',
-        # '3gerardpique',
-        # 'DalaiLama',
-        # 'StephenAtHome',
-        # 'shugairi',
-        # 'aplusk',
-        # 'JimCarrey',
-        # '10Ronaldinho',
-        # 'aliaa08',
-        # 'virendersehwag',
-        # 'Pontifex',
-        # 'AnushkaSharma',
-        # 'jamesdrodriguez',
-        # 'agnezmo',
-        # 'SnoopDogg',
-        # 'KDTrey5',
-        # 'GarethBale11',
-        # 'ParisHilton',
-        # 'FALCAO',
-        # 'WayneRooney'
-# ]
-
-
 startDate = datetime.datetime(2018,9,15,0,0,0)
-
 
 dframe = pd.read_excel("./twitter-influence/buckets_list.xlsx")
 bucketsdf = dframe.loc[dframe['bucket'] == 'media']
@@ -140,6 +27,7 @@ for sntr in bucketsdf['handle']:
     for twt in Cursor(api.user_timeline, tweet_mode='extended', id=acct.id).items(600):
         print(twt)
         if (twt.created_at > startDate):
+            # ignore retweets
             try:
                 retweet = twt.retweeted_status.full_text
                 print('RETWEET IGNORED: ', retweet)
@@ -169,10 +57,8 @@ for sntr in bucketsdf['handle']:
                 data['collected_on'] = datetime.datetime.today().strftime('%Y-%m-%d')
                 print(data)
                 print(' ')
-                # INSERT INTO MONGO
-                #tweets.insert(data)
 
-                # INSERT INTO POSTGRESQL
+                # insert data object to Postgres
                 try:
                     cur.execute(query, (
                         data['id'],
@@ -189,6 +75,7 @@ for sntr in bucketsdf['handle']:
                         data['collected_on']
                     ))
                     conn.commit()
+                # error handle for data that already exists in table
                 except pg2.IntegrityError:
                     conn.rollback()
                     print('Rollback: Already exists...')

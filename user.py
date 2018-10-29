@@ -1,15 +1,112 @@
-# -*- coding: utf-8 -*-
 """
-Created on Mon Sep 10 15:54:07 2018
-
-@author: sunkim
+Get user timeline data
 """
 
-from tweepy.cursor import Cursor
 import datetime
 
-# With MongoDB
-#users = db.users
+# top_100 = [
+        # 'katyperry',
+        # 'justinbieber',
+        # 'BarackObama',
+        # 'rihanna',
+        # 'taylorswift13',
+        # 'ladygaga',
+        # 'TheEllenShow',
+        # 'Cristiano',
+        # 'jtimberlake',
+        # 'KimKardashian',
+        # 'ArianaGrande',
+        # 'ddlovato',
+        # 'selenagomez',
+        # 'britneyspears',
+        # 'realDonaldTrump',
+        # 'shakira',
+        # 'jimmyfallon',
+        # 'BillGates',
+        # 'narendramodi'
+        # 'JLo',
+        # 'BrunoMars',
+        # 'Oprah',
+        # 'KingJames',
+        # 'neymarjr',
+        # 'MileyCyrus',
+        # 'NialOfficial',
+        # 'Drake',
+        # 'iamsrk',
+        # 'SrBachchan'
+        # 'KevinHart4real',
+        # 'BeingSalmanKhan',
+        # 'LilTunechi',
+        # 'wizkhalifa',
+        # 'Louis_Tomlinson',
+        # 'Harry_Styles',
+        # 'LiamPayne',
+        # 'Pink',
+        # 'onedirection',
+        # 'aliciakeys'
+        # 'KAKA',
+        # 'chrisbrown',
+        # 'EmmaWatson',
+        # 'ConanOBrien',
+        # 'kanyewest'
+        # 'Adele',
+        # 'akshaykumar',
+        # 'zaynmalik',
+        # 'ActuallyNPH',
+        # 'sachin_rt',
+        # 'PMOIndia',
+        # 'KendallJenner',
+        # 'imVkholi',
+        # 'pitbull',
+        # 'danieltosh',
+        # 'khloekardashian',
+        # 'KylieJenner',
+        # 'deepikapadukone',
+        # 'iHrithik',
+        # 'POTUS',
+        # 'coldplay',
+        # 'aamir_khan',
+        # 'kourtneykardash',
+        # 'andresiniesta8',
+        # 'HillaryClinton',
+        # 'MesutOzil1088',
+        # 'priyankachopra',
+        # 'elonmusk',
+        # 'Eminem',
+        # 'AvrilLavigne',
+        # 'davidguetta',
+        # 'MohamadAlarefe',
+        # 'blakeshelton',
+        # 'ricky_martin',
+        # 'MariahCarey',
+        # 'arrahman',
+        # 'NICKIMINAJ',
+        # 'ShawnMendes',
+        # 'edsheeran',
+        # 'AlejandroSanz',
+        # 'Dr_alqarnee',
+        # 'LeoDiCaprio',
+        # '3gerardpique',
+        # 'DalaiLama',
+        # 'StephenAtHome',
+        # 'shugairi',
+        # 'aplusk',
+        # 'JimCarrey',
+        # '10Ronaldinho',
+        # 'aliaa08',
+        # 'virendersehwag',
+        # 'Pontifex',
+        # 'AnushkaSharma',
+        # 'jamesdrodriguez',
+        # 'agnezmo',
+        # 'SnoopDogg',
+        # 'KDTrey5',
+        # 'GarethBale11',
+        # 'ParisHilton',
+        # 'FALCAO',
+        # 'WayneRooney'
+# ]
+
 from apisetup import api
 from pgsetup import cur, conn
 query = "INSERT INTO users VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -30,28 +127,24 @@ for user in top_100:
         'listed_count': usr.listed_count,
         'date_queried': datetime.datetime.today().strftime('%Y-%m-%d')
     }
-    #users.insert(data)
 
-    # With Postgres
-    # cur.execute(query, (data['id'],
-    #                     data['name'],
-    #                     data['handle'],
-    #                     data['location'],
-    #                     data['verified'],
-    #                     data['description'],
-    #                     data['followers_count'],
-    #                     data['following_count'],
-    #                     data['tweets_count'],
-    #                     data['likes_count'],
-    #                     data['listed_count'],
-    #                     data['date_queried']
-    #                     )
-    # )
-    # conn.commit()
+    # Insert data into Postgres
+    cur.execute(query, (data['id'],
+                        data['name'],
+                        data['handle'],
+                        data['location'],
+                        data['verified'],
+                        data['description'],
+                        data['followers_count'],
+                        data['following_count'],
+                        data['tweets_count'],
+                        data['likes_count'],
+                        data['listed_count'],
+                        data['date_queried']
+                        )
+    )
+    conn.commit()
     print(data)
 
-
-
-
-#for follower in Cursor(api.followers, id=usr.id).items(2):
-#    print(follower.id, follower.name)
+cur.close()
+conn.close()

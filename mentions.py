@@ -1,32 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Sep 10 12:31:40 2018
-
-@author: sunkim
-"""
-
-# top_100 = [
-    # 'MileyCyrus',
-    # 'NialOfficial',
-    # 'Drake',
-    # 'iamsrk',
-    # 'SrBachchan',
-    # 'KevinHart4real',
-    # 'BeingSalmanKhan',
-    # 'LilTunechi',
-    # 'wizkhalifa',
-    # 'Louis_Tomlinson',
-    # 'Harry_Styles',
-    # 'LiamPayne',
-    # 'Pink',
-    # 'onedirection',
-    # 'aliciakeys',
-    # 'KAKA',
-    # 'chrisbrown',
-    # 'EmmaWatson',
-    # 'ConanOBrien',
-    # 'kanyewest'
-# ]
 import datetime, yaml
 import pandas as pd
 from tweepy.cursor import Cursor
