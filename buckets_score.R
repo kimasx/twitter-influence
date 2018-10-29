@@ -5,7 +5,7 @@ library(xlsx)
 
 
 ##
-# Define variables or functions to bs used
+# Define variables and functions to bs used
 #
 buckets <- c('artist','athlete','university','senator')
 
@@ -65,7 +65,7 @@ tweets_info <- dbGetQuery(con, 'SELECT
                                 RIGHT JOIN buckets ON buckets_tweets.handle=buckets.handle
                                 GROUP BY buckets.handle,buckets.bucket;')
 
-
+# create dataframes
 buckets_metrics <- inner_join(user_info, mentions, by=c('handle' = 'handle')) %>% 
   inner_join(x=total_retweets,y=., by=c('handle' = 'handle'))
 
@@ -86,14 +86,14 @@ artists <- scores %>% filter(bucket=='artist')
 athletes <- scores %>% filter(bucket=='athlete')
 senators <- scores %>% filter(bucket=='senator')
 
-
+# normalize influence scores for each bucket
 scores$norm_score <- (scores$inf_score - min(scores$inf_score) ) / (max(scores$inf_score) - min(scores$inf_score))
 unis$norm_score <- (unis$inf_score - min(unis$inf_score) ) / (max(unis$inf_score) - min(unis$inf_score))
 artists$norm_score <- (artists$inf_score - min(artists$inf_score) ) / (max(artists$inf_score) - min(artists$inf_score))
 athletes$norm_score <- (athletes$inf_score - min(athletes$inf_score) ) / (max(athletes$inf_score) - min(athletes$inf_score))
 senators$norm_score <- (senators$inf_score - min(senators$inf_score) ) / (max(senators$inf_score) - min(senators$inf_score))
 
-
+# write scores into excel sheets
 write.xlsx(scores,'C:/Users/sunkim/Development/twitter-influence/bucket_scores2.xlsx',sheetName='all_buckets', row.name=F)
 write.xlsx(unis,'C:/Users/sunkim/Development/twitter-influence/bucket_scores2.xlsx',sheetName='university', append=T, row.name=F)
 write.xlsx(artists,'C:/Users/sunkim/Development/twitter-influence/bucket_scores2.xlsx',sheetName='artist', append=T, row.name=F)
